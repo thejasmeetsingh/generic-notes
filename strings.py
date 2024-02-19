@@ -1,0 +1,7 @@
+CREATE_SUCCESS="{}Created successfully"
+UPDATE_SUCESS="{}Updated successfully"
+DELETE_SUCCESS="{}Deleted successfully"
+USERNAME_ALREADY_EXISTS="This username already taken, Please enter a different username."
+INVALID_LOGIN_CREDENTIALS="Invalid login credentials provided. Please try again."
+LOGIN_SUCCESS = "Logged in successfully"
+TOKEN_REFRESH_SUCCESS = "Access token is refreshed successfully."
