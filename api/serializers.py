@@ -4,7 +4,7 @@ from rest_framework import serializers
 from api.models import Note, VersionHistory
 
 
-class UserListSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username", "date_joined")
@@ -34,3 +34,19 @@ class NoteSerializer(serializers.ModelSerializer):
         )
 
         return instance
+
+
+class VersionHistorySerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    note = NoteSerializer(read_only=True)
+
+    class Meta:
+        model = VersionHistory
+        fields = (
+            "id",
+            "old_description",
+            "new_description",
+            "user",
+            "note",
+            "created_at",
+        )

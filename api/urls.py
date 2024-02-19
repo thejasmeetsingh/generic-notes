@@ -13,5 +13,6 @@ urlpatterns = [
     # Note API Endpoints
     path("notes/create/", notes.CreateNote.as_view()),
     path("notes/share/", notes.ShareNote.as_view()),
+    path("notes/version-history/<str:note_id>/", notes.VersionHisotryList.as_view()),
     path("notes/<str:pk>/", notes.NoteDetail.as_view()),
 ]

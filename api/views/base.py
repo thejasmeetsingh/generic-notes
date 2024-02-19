@@ -1,3 +1,10 @@
+"""
+This file contains all the base views, Which will be inherited by all the application
+related views.
+
+This way we can easily manage all views behaviour from a centralize place.
+"""
+
 from rest_framework import serializers, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView

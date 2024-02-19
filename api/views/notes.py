@@ -3,18 +3,19 @@ import json
 from django.db import transaction
 from django.contrib.auth.models import User
 from rest_framework.request import Request
-from rest_framework.permissions import AllowAny
 
 import strings
 from api.views.base import (
     CustomAPIView,
     CustomGenericAPIView,
+    CustomListModelMixin,
     CustomCreateModelMixin,
     CustomRetrieveModelMixin,
     CustomUpdateModelMixin,
 )
-from api.serializers import NoteSerializer
-from api.models import Note
+from api.serializers import NoteSerializer, VersionHistorySerializer
+from api.permissions import CanReadOrUpdateNote
+from api.models import Note, VersionHistory
 from api.utils import success_response, error_response
 
 
@@ -22,19 +23,20 @@ class CreateNote(CustomGenericAPIView, CustomCreateModelMixin):
     serializer_class = NoteSerializer
 
     @transaction.atomic
-    def post(self, request: Request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
 
 class NoteDetail(CustomGenericAPIView, CustomRetrieveModelMixin, CustomUpdateModelMixin):
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
+    permission_classes = (CanReadOrUpdateNote,)
 
-    def get(self, request: Request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
     @transaction.atomic
-    def put(self, request: Request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
 
@@ -62,3 +64,15 @@ class ShareNote(CustomAPIView):
         note.shared_with.add(*users)
 
         return success_response(data=usernames, message=strings.SHARE_NOTE_SUCCESS)
+
+
+class VersionHisotryList(CustomGenericAPIView, CustomListModelMixin):
+    queryset = VersionHistory.objects.select_related("user", "note")
+    serializer_class = VersionHistorySerializer
+
+    def get_queryset(self):
+        # Filter the version hisotry records based on the given note_id
+        return super().get_queryset().filter(note_id=self.kwargs["note_id"])
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)

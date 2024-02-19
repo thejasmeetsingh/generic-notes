@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
 import strings
-from api.serializers import UserListSerializer
+from api.serializers import UserSerializer
 from api.views.base import (
     CustomAPIView,
     CustomGenericAPIView,
@@ -91,10 +91,11 @@ class UserList(CustomGenericAPIView, CustomListModelMixin):
     """
 
     queryset = User.objects.all()
-    serializer_class = UserListSerializer
+    serializer_class = UserSerializer
 
     def get_queryset(self):
+        # Exclude the current user from the users queryset
         return super().get_queryset().exclude(id=self.request.user.id)
-    
-    def get(self, request: Request, *args, **kwargs):
+
+    def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
