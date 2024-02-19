@@ -9,7 +9,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
 import strings
-from api.views.base import CustomAPIView
+from api.serializers import UserListSerializer
+from api.views.base import (
+    CustomAPIView,
+    CustomGenericAPIView,
+    CustomListModelMixin,
+)
 from api.utils import get_auth_token, error_response, success_response
 
 
@@ -33,7 +38,7 @@ class Singup(CustomAPIView):
 
         return success_response(
             data=data, 
-            message=strings.CREATE_SUCCESS.format("Account "),
+            message=strings.ACCOUNT_CREATED_SUCCESS,
             status_code=status.HTTP_201_CREATED,
         )
 
@@ -75,3 +80,21 @@ class RefreshToken(CustomAPIView):
             return error_response(message=str(e))
 
         return success_response(data=serializer.validated_data, message=strings.TOKEN_REFRESH_SUCCESS)
+
+
+class UserList(CustomGenericAPIView, CustomListModelMixin):
+    """
+    This view is created with the purpose of getting username of other users that are exists in the application.
+
+    Although this is not part of the scope, But i think that this API will be very helpful with regards to the
+    Share Note API where the Note owner need to send the array of username.
+    """
+
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+
+    def get_queryset(self):
+        return super().get_queryset().exclude(id=self.request.user.id)
+    
+    def get(self, request: Request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)

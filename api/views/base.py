@@ -24,14 +24,15 @@ class CustomAPIView(APIView):
 class CustomGenericAPIView(GenericAPIView):
     def handle_exception(self, exc):
         if isinstance(exc, KeyError):
+            print(exc)
             exc = serializers.ValidationError(detail={"message": f"{exc.args[0]} field is required"})
         return super().handle_exception(exc)
 
 
-class CustomListAPIView(ListModelMixin):
+class CustomListModelMixin(ListModelMixin):
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
-        data = {"status_code": status.HTTP_200_OK}
+        data = dict()
 
         if "results" in response.data:
             data.update(response.data)
@@ -42,7 +43,7 @@ class CustomListAPIView(ListModelMixin):
         return Response(data)
 
 
-class CustomCreateAPIView(CreateModelMixin):
+class CustomCreateModelMixin(CreateModelMixin):
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
 
@@ -53,23 +54,13 @@ class CustomCreateAPIView(CreateModelMixin):
         )
 
 
-class CustomRetrieveAPIView(RetrieveModelMixin):
+class CustomRetrieveModelMixin(RetrieveModelMixin):
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
         return success_response(data=response.data, message=kwargs.get("message"))
 
 
-class CustomUpdateAPIView(UpdateModelMixin):
+class CustomUpdateModelMixin(UpdateModelMixin):
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
         return success_response(data=response.data, message=kwargs.get("message", strings.UPDATE_SUCESS))
-
-    def partial_update(self, request, *args, **kwargs):
-        response = super().partial_update(request, *args, **kwargs)
-        return success_response(data=response.data, message=kwargs.get("message", strings.UPDATE_SUCESS))
-
-
-class CustomDeleteAPIView(DestroyModelMixin):
-    def destroy(self, request, *args, **kwargs):
-        response = super().destroy(request, *args, **kwargs)
-        return success_response(data=response.data, message=kwargs.get("message", strings.DELETE_SUCCESS))

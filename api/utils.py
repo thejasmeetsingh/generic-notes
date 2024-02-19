@@ -13,5 +13,5 @@ def success_response(data: dict, message: str | None = None, status_code: int = 
     return Response({"message": message, "data": data}, status=status_code)
 
 
-def error_response(message: str, errors: dict | None = None, status_code: int = status.HTTP_403_FORBIDDEN):
+def error_response(message: str, errors: dict | None = None, status_code: int = status.HTTP_400_BAD_REQUEST):
     return Response({"message": message, "errors": errors}, status=status_code)
