@@ -22,4 +22,4 @@ These instructions will get you a copy of the project up and running on your loc
 
 [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://app.getpostman.com/run-collection/17396704-f5adf0f8-4c30-42ce-9212-ea179f294826?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D17396704-f5adf0f8-4c30-42ce-9212-ea179f294826%26entityType%3Dcollection%26workspaceId%3D392b781a-05ab-415b-9eb8-456aca6f3129)
 
-To run automated tests for the application, execute the following command: `docker container exec -it app python manage.py test api.tests`.
+To run automated tests for the application, execute the command: `docker container exec -it app python manage.py test api.tests`.
