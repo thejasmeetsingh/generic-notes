@@ -8,6 +8,9 @@ from rest_framework.test import APITestCase
 class SingupTests(APITestCase):
     url = reverse("singup")
 
+    def tearDown(self) -> None:
+        User.objects.all().delete()
+
     def test_singup(self):
         username = "test_user"
         data = {"username": username, "password": "1234"}
@@ -44,4 +47,44 @@ class SingupTests(APITestCase):
             User.objects.filter(username=username).count(),
             1,
             msg="Check number of users exists in the DB with the defined username"
+        )
+
+
+class LoginTests(APITestCase):
+    url = reverse("login")
+
+    def setUp(self) -> None:
+        User.objects.create_user(username="test_user", password="1234")
+    
+    def tearDown(self) -> None:
+        User.objects.all().delete()
+    
+    def test_login(self):
+        data = {"username": "test_user", "password": "1234"}
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+            msg="Check response status code. Should be equal to 200, Since we are testing with valid credentials"
+        )
+
+    def test_invalid_username(self):
+        data = {"username": "test_user1", "password": "1234"}
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+            msg="Check response status code. Should be equal to 402, Since we are testing with invalid username"
+        )
+    
+    def test_invalid_password(self):
+        data = {"username": "test_user", "password": "12345"}
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+            msg="Check response status code. Should be equal to 402, Since we are testing with invalid password"
         )
