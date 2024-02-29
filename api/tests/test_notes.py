@@ -10,7 +10,7 @@ from api.models import Note, VersionHistory
 
 
 class NoteCreateTests(APITestCase):
-    url = reverse("create-note")
+    url = reverse("note-list")
 
     def setUp(self) -> None:
         User.objects.create_user(username="test_user", password="1234")
@@ -200,7 +200,7 @@ class ShareNoteTests(APITestCase):
 
         self.assertEqual(
             response.status_code,
-            status.HTTP_403_FORBIDDEN,
+            status.HTTP_404_NOT_FOUND,
             msg="Check response status code. Should be equal to 403, Since we are using a different user (which does not have the access) to retrive the note"
         )
     
@@ -219,6 +219,6 @@ class ShareNoteTests(APITestCase):
 
         self.assertEqual(
             response.status_code,
-            status.HTTP_403_FORBIDDEN,
+            status.HTTP_404_NOT_FOUND,
             msg="Check response status code. Should be equal to 403, Since we are using a different user (which does not have the access) to update the note"
         )

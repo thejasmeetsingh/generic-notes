@@ -11,8 +11,8 @@ urlpatterns = [
     path("user/", auth.UserList.as_view(), name="user-list"),
 
     # Note API Endpoints
-    path("notes/create/", notes.CreateNote.as_view(), name="create-note"),
-    path("notes/share/", notes.ShareNote.as_view(), name="share-note"),
-    path("notes/version-history/<str:note_id>/", notes.VersionHisotryList.as_view(), name="note-version-history"),
-    path("notes/<str:pk>/", notes.NoteDetail.as_view(), name="note-detail"),
+    path("note/", notes.NoteList.as_view(), name="note-list"),
+    path("note/share/", notes.ShareNote.as_view(), name="share-note"),
+    path("note/version-history/<str:note_id>/", notes.VersionHisotryList.as_view(), name="note-version-history"),
+    path("note/<str:pk>/", notes.NoteDetail.as_view(), name="note-detail"),
 ]

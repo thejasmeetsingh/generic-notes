@@ -1,6 +1,7 @@
 import json
 
 from django.db import transaction
+from django.db.models import Q, Subquery, OuterRef
 from django.contrib.auth.models import User
 from rest_framework.request import Request
 
@@ -14,23 +15,37 @@ from api.views.base import (
     CustomUpdateModelMixin,
 )
 from api.serializers import NoteSerializer, VersionHistorySerializer
-from api.permissions import CanReadOrUpdateNote
 from api.models import Note, VersionHistory
 from api.utils import success_response, error_response
 
 
-class CreateNote(CustomGenericAPIView, CustomCreateModelMixin):
+class NoteBaseView(CustomGenericAPIView):
+    queryset = Note.objects.all()
     serializer_class = NoteSerializer
+
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            Q(owner_id=self.request.user.id) | 
+            Q(shared_with__id=self.request.user.id)
+        )
+
+
+class NoteList(NoteBaseView, CustomListModelMixin, CustomCreateModelMixin):
+    def get_queryset(self):
+        # Fetch latest note log and associate with each note record respectively
+        note_logs = VersionHistory.objects.only("old_description").filter(note_id=OuterRef("id")).order_by("-created_at")
+        return super().get_queryset().annotate(old_description=Subquery(note_logs.values("old_description")[:1]))
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
 
-class NoteDetail(CustomGenericAPIView, CustomRetrieveModelMixin, CustomUpdateModelMixin):
-    queryset = Note.objects.all()
-    serializer_class = NoteSerializer
-    permission_classes = (CanReadOrUpdateNote,)
+class NoteDetail(NoteBaseView, CustomRetrieveModelMixin, CustomUpdateModelMixin):
+    # permission_classes = (CanReadOrUpdateNote,)
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -72,7 +87,11 @@ class VersionHisotryList(CustomGenericAPIView, CustomListModelMixin):
 
     def get_queryset(self):
         # Filter the version hisotry records based on the given note_id
-        return super().get_queryset().filter(note_id=self.kwargs["note_id"])
+        return super().get_queryset().filter(
+            Q(note__owner_id=self.request.user.id) | 
+            Q(note__shared_with__id=self.request.user.id),
+            note_id=self.kwargs["note_id"]
+        )
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

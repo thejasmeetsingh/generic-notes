@@ -15,6 +15,13 @@ class NoteSerializer(serializers.ModelSerializer):
         model = Note
         fields = ("id", "description", "created_at", "modified_at")
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Check if latest field preasent in the instance.
+        # Add the old description value into the serialized data.
+        data.update({"old_description": getattr(instance, "old_description", None)})
+        return data
+
     def create(self, validated_data: dict):
         validated_data.update({"owner": self.context["request"].user})
         return super().create(validated_data)
