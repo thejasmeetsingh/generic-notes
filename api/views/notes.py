@@ -45,8 +45,6 @@ class NoteList(NoteBaseView, CustomListModelMixin, CustomCreateModelMixin):
 
 
 class NoteDetail(NoteBaseView, CustomRetrieveModelMixin, CustomUpdateModelMixin):
-    # permission_classes = (CanReadOrUpdateNote,)
-
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
